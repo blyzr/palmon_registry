@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ADHD Bunnies - Palmon Registry</title>
+<link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@700&family=Figtree:wght@400;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="styles.css">
+</head>
+<body>
+
+<header>
+  <div class="logo">
+    <div class="logo-icon">🐰</div>
+    <div>
+      <div class="logo-name">ADHD Bunnies</div>
+      <div class="logo-sub">Palmon Registry</div>
+    </div>
+  </div>
+  <div style="display:flex;align-items:center;gap:10px">
+    <div class="lang-switcher">
+      <button class="lang-btn" id="lang-en" onclick="setLang('en')"><span class="lang-flag">🇬🇧</span> EN</button>
+      <button class="lang-btn" id="lang-tr" onclick="setLang('tr')"><span class="lang-flag">🇹🇷</span> TR</button>
+      <button class="lang-btn" id="lang-de" onclick="setLang('de')"><span class="lang-flag">🇩🇪</span> DE</button>
+    </div>
+    <div class="count-pill">Registry: <b id="total">0</b></div>
+  </div>
+</header>
+
+<nav class="tabs">
+  <button class="tab active" onclick="switchTab('registry')">Registry</button>
+  <button class="tab" onclick="switchTab('ref')">Trait Reference</button>
+</nav>
+
+<div class="main">
+
+  <!-- REGISTRY PAGE -->
+  <div class="page active" id="page-registry">
+
+    <div style="display:flex; gap:10px; margin-bottom:18px; flex-wrap:wrap; align-items:center;">
+      <button class="add-btn" onclick="openModal()">+ Add Palmon</button>
+      <button class="add-btn" onclick="loadRegistry()" style="background:linear-gradient(135deg,#2a2440,#1a1628);box-shadow:none;border:1px solid var(--border);color:var(--text2);">↻ Refresh</button>
+    </div>
+
+    <!-- FILTERS -->
+    <div class="filter-bar">
+      <button class="role-btn" id="btn-combat" onclick="toggleRoleFilter('combat')">⚔️ <span data-str="combat">Combat</span></button>
+      <button class="role-btn" id="btn-worker" onclick="toggleRoleFilter('worker')">⛏️ <span data-str="workers">Workers</span></button>
+      <div class="trait-dd-wrap" id="trait-dd-wrap">
+        <button class="trait-dd-btn" id="trait-dd-btn" onclick="toggleTraitDropdown(event)">
+          <span id="trait-dd-label">All traits</span>
+          <span class="dd-arrow">▼</span>
+        </button>
+        <div class="trait-dd-panel" id="trait-dd-panel"></div>
+      </div>
+    </div>
+
+    <div class="grid" id="grid">
+      <div class="loading">Connecting to registry...</div>
+    </div>
+  </div>
+
+  <!-- TRAIT REF PAGE -->
+  <div class="page" id="page-ref">
+    <div class="filter-bar" style="margin-bottom:16px">
+      <div class="pill-row">
+        <div class="pill" id="ref-pill-all" onclick="setRefFilter('')">All</div>
+        <div class="pill" id="ref-pill-combat" onclick="setRefFilter('combat')">⚔️ Combat</div>
+        <div class="pill" id="ref-pill-worker" onclick="setRefFilter('worker')">⛏️ Worker</div>
+      </div>
+    </div>
+    <div class="ref-grid" id="ref-grid"></div>
+  </div>
+
+</div>
+
+<!-- ADD MODAL -->
+<div class="overlay" id="modal">
+  <div class="modal">
+    <div class="modal-head">🐰 Add Palmon</div>
+    <div class="modal-body">
+
+      <!-- SHARED USERNAME -->
+      <div class="qi-row" style="margin-bottom:14px;gap:8px;align-items:center">
+        <span class="qi-label" style="width:64px;flex-shrink:0">Username</span>
+        <input class="qi-input" id="batch-owner" placeholder="Your username (required)"
+          oninput="checkSubmitReady()" style="font-size:13px;padding:7px 11px">
+      </div>
+
+      <!-- DROP ZONE -->
+      <div class="drop-zone" id="drop-zone"
+        ondragover="event.preventDefault();this.classList.add('drag-over')"
+        ondragleave="this.classList.remove('drag-over')"
+        ondrop="handleDrop(event)"
+        onclick="document.getElementById('file-input').click()">
+        <input type="file" id="file-input" accept="image/*" multiple onchange="handleFiles(this.files)">
+        <div class="dz-icon">📷</div>
+        <div class="dz-text">Upload screenshots</div>
+        <div class="dz-hint">Tap or drag – multiple files supported – AI will read name and traits automatically</div>
+      </div>
+
+      <div class="queue" id="queue"></div>
+
+    </div>
+    <div class="modal-foot">
+      <div class="submit-msg" id="submit-msg"></div>
+      <button class="btn btn-ghost" onclick="closeModal()">Cancel</button>
+      <button class="btn btn-primary" id="submit-btn" onclick="submitAll()" disabled>Submit All</button>
+    </div>
+  </div>
+</div>
+
+<script src="app.js"></script>
+</body>
+</html>
