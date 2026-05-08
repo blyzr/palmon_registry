@@ -57,103 +57,122 @@ async function detectLanguage() {
 // Falls back to the EN name if no translation exists.
 // =====================================================
 const TRAIT_NAMES = {
+  // All values verified against in-game screenshots (2026-05-08)
   tr: {
-    // Combat – Attack
-    'Warlike':'Savaşçı', 'Belligerent':'Kavgacı', 'Combative':'Saldırgan', 'Hostile':'Düşmanca',
-    // Combat – Crit Damage
-    'Heartless':'Kalpsiz', 'Ruthless':'Acımasız', 'Brutal':'Zalim', 'Mean':'Kötü Niyetli',
-    // Combat – Crit Rate
-    'Blessed':'Kutsal', 'Fortunate':'Talihli', 'Favored':'Kayırılmış', 'Lucky':'Şanslı',
-    // Combat – Accuracy
-    'Deadeye':'Keskin Göz', 'Sharpshooter':'Nişancı', 'Crack Shot':'İyi Atıcı', 'Gunner':'Silahçı',
-    // Combat – HP
-    'Vigorous':'Güçlü', 'Robust':'Sağlam', 'Energetic':'Enerjik', 'Durable':'Dayanıklı',
-    // Combat – Defense
-    'Unshakeable':'Sarsılmaz', 'Steadfast':'Sebatkar', 'Resolute':'Kararlı', 'Rooted':'Kökleşmiş',
-    // Combat – Crit Defense
-    'Diamond Skull':'Elmas Kafatası', 'Steel Skull':'Çelik Kafatası',
-    'Iron Skull':'Demir Kafatası', 'Stone Skull':'Taş Kafatası',
-    // Combat – Tenacity
-    'Iron Will':'Demir İrade', 'Unyielding':'Boyun Eğmez', 'Hardy':'Dirençli', 'Stubborn':'İnatçı',
-    // Combat – Evasion
-    'Shadow':'Gölge', 'Elusive':'Kaygan', 'Slippery':'Kaçamak', 'Nimble':'Çevik',
-    // Combat – Stun Resist
-    'Serene':'Sakin', 'Clear-Headed':'Açık Kafali', 'Steady':'İstikrarlı', 'Calm':'Soğukkanlı',
-    // Worker – Job Efficiency
+    // ── Combat: Attack ───────────────────────────────────────────────
+    'Warlike':'Cengaver', 'Belligerent':'Kavgacı', 'Combative':'Hırçın', 'Hostile':'Saldırgan',
+    // ── Combat: Crit Damage ──────────────────────────────────────────
+    'Heartless':'İnsafsız', 'Ruthless':'Acımasız', 'Brutal':'Yabani', 'Mean':'Kaba',
+    // ── Combat: Crit Rate ────────────────────────────────────────────
+    'Blessed':'Kutsanmış', 'Fortunate':'Ballı', 'Favored':'Ayrıcalıklı', 'Lucky':'Şanslı',
+    // ── Combat: Accuracy ─────────────────────────────────────────────
+    'Deadeye':'Keskin İsabet', 'Sharpshooter':'İyi Nişancı', 'Crack Shot':'Çatlak Atış', 'Gunner':'Nişancı',
+    // ── Combat: HP ───────────────────────────────────────────────────
+    'Vigorous':'Dinç', 'Robust':'Yapılı', 'Energetic':'Enerjik', 'Durable':'Dayanıklı',
+    // ── Combat: Defense ──────────────────────────────────────────────
+    'Unshakeable':'Sarsılmaz', 'Steadfast':'Kararlı', 'Resolute':'Azimli', 'Rooted':'Sağlam',
+    // ── Combat: Crit Defense ─────────────────────────────────────────
+    'Diamond Skull':'Elmas Kafa', 'Steel Skull':'Çelik Kafa',
+    'Iron Skull':'Demir Kafa', 'Stone Skull':'Taş Kafa',
+    // ── Combat: Tenacity ─────────────────────────────────────────────
+    'Iron Will':'Demir İrade', 'Unyielding':'Boyun Eğmez', 'Hardy':'Çetin', 'Stubborn':'İnatçı',
+    // ── Combat: Evasion ──────────────────────────────────────────────
+    'Shadow':'Gölge', 'Elusive':'Ele Avuca Sığmaz', 'Slippery':'Kaygan', 'Nimble':'Atik',
+    // ── Combat: Stun Resist ──────────────────────────────────────────
+    'Serene':'Sakin', 'Clear-Headed':'Aklı Başında', 'Steady':'Dengeli', 'Calm':'Soğukkanlı',
+    // ── Combat: Negative ─────────────────────────────────────────────
+    'Embattled':'Sıkışık', 'Faberge Jaw':'Kırılgan Çene', 'Softie':'Dayanıksız',
+    'Spineless':'İradesiz', 'Jinxed':'Uğursuz', 'Fumbling':'Beceriksiz', 'Myopic':'Miyop',
+    // ── Worker: Move Speed ───────────────────────────────────────────
+    'Lightspeed':'Işık Hızı', 'Supersonic':'Süpersonik', 'Fleet-Footed':'Hızlı Ayak', 'Speedy':'Hızlı',
+    // ── Worker: Charging ─────────────────────────────────────────────
+    'Electric Frenzy':'Elektrik Delisi',
+    'Lightning Affinity':'Yıldırım Yatkını', 'Light Affinity':'Yıldırım Yatkını',
+    'E-Conductor':'Kondüktör', 'Battery Pack':'Pil Paketi',
+    // ── Worker: Smelting ─────────────────────────────────────────────
+    'Metal Maestro':'Metal Ustası', 'Forge Fanatic':'Ocak Fanatiği',
+    'Bellow Fellow':'Körük İçcisi', 'Anvil Adept':'Örs Ustası',
+    // ── Worker: Sawing ───────────────────────────────────────────────
+    'Timber Tycoon':'Kereste Patronu', 'Wood Whiz':'Seri Oduncu',
+    'Saw Savant':'Bıçkı Alimi', 'Workshopper':'Atölyeci',
+    // ── Worker: Negative ─────────────────────────────────────────────
+    'Energy Saver':'Enerji Tasarrufu Modu', 'Sluggard':'Uykucu',
+    'Soot Allergy':'İş Alerjisi', 'Sawdust Allergy':'Talaş Alerjisi',
+    // ── Worker: Job Efficiency ───────────────────────────────────────
     'Workaholic':'İş Tutkunu', 'Industrious':'Çalışkan', 'Diligent':'Gayretli', 'Efficient':'Verimli',
-    // Worker – Move Speed
-    'Lightspeed':'Işık Hızı', 'Supersonic':'Süpersonik', 'Fleet-Footed':'Hızlı Ayaklı', 'Speedy':'Hızlı',
-    // Worker – Charging
-    'Electric Frenzy':'Elektrik Çılgınlığı', 'Light Affinity':'Işık Yakınlığı',
-    'Battery Pack':'Pil Paketi', 'E-Conductor':'Elektrik İletken',
-    // Worker – Smelting
-    'Metal Maestro':'Metal Ustası', 'Forge Fanatic':'Dövme Tutkunu',
-    'Bellow Fellow':'Körük Arkadaşı', 'Anvil Adept':'Örs Uzmanı',
-    // Worker – Sawing
-    'Timber Tycoon':'Kereste Patronu', 'Wood Whiz':'Ahşap Dehası',
-    'Saw Savant':'Testere Uzmanı', 'Workshopper':'Atölye Ustası',
-    // Worker – suffixed
-    'Prodigy (S)':'Dahi (S)', 'Prodigy (A)':'Dahi (A)', 'Prodigy (B)':'Dahi (B)',
-    'Engineer (S)':'Mühendis (S)', 'Engineer (A)':'Mühendis (A)', 'Engineer (B)':'Mühendis (B)',
-    'Coach (S)':'Antrenör (S)', 'Coach (A)':'Antrenör (A)', 'Coach (B)':'Antrenör (B)',
-    'Healing Touch (S)':'İyileştirici Dokunuş (S)', 'Healing Touch (A)':'İyileştirici Dokunuş (A)', 'Healing Touch (B)':'İyileştirici Dokunuş (B)',
+    // ── Worker: Other ────────────────────────────────────────────────
+    'Generous':'Cömert',
+    // ── Worker: tiered ───────────────────────────────────────────────
     'Alchemist (S)':'Simyacı (S)', 'Alchemist (A)':'Simyacı (A)', 'Alchemist (B)':'Simyacı (B)',
-    'Dreamium Hunter (S)':'Hayalperest Avcı (S)', 'Dreamium Hunter (A)':'Hayalperest Avcı (A)', 'Dreamium Hunter (B)':'Hayalperest Avcı (B)',
-    'Caffinated (S)':'Kafeinli (S)', 'Caffinated (A)':'Kafeinli (A)', 'Caffinated (B)':'Kafeinli (B)',
-    'Light Eater (S)':'Hafif Yiyici (S)', 'Light Eater (A)':'Hafif Yiyici (A)', 'Light Eater (B)':'Hafif Yiyici (B)',
-    'Temperate (S)':'Ölçülü (S)', 'Temperate (A)':'Ölçülü (A)', 'Temperate (B)':'Ölçülü (B)',
+    'Dreamium Hunter (S)':'Özüt Avcısı (S)', 'Dreamium Hunter (A)':'Özüt Avcısı (A)', 'Dreamium Hunter (B)':'Özüt Avcısı (B)',
+    'Caffinated (S)':'Kafein Patlaması (S)', 'Caffinated (A)':'Kafein Patlaması (A)', 'Caffinated (B)':'Kafein Patlaması (B)',
+    'Light Eater (S)':'Hafif İştahlı (S)', 'Light Eater (A)':'Hafif İştahlı (A)', 'Light Eater (B)':'Hafif İştahlı (B)',
+    'Temperate (S)':'Ilımlı (S)', 'Temperate (A)':'Ilımlı (A)', 'Temperate (B)':'Ilımlı (B)',
     'Sweet Dreams (S)':'Tatlı Rüyalar (S)', 'Sweet Dreams (A)':'Tatlı Rüyalar (A)', 'Sweet Dreams (B)':'Tatlı Rüyalar (B)',
     'Comfy (S)':'Rahat (S)', 'Comfy (A)':'Rahat (A)', 'Comfy (B)':'Rahat (B)',
-    'Generous':'Cömert',
+    'Prodigy (S)':'Deha (S)', 'Prodigy (A)':'Deha (A)', 'Prodigy (B)':'Deha (B)',
+    'Coach (S)':'Koç (S)', 'Coach (A)':'Koç (A)', 'Coach (B)':'Koç (B)',
+    'Healing Touch (S)':'Şifalı Dokunuş (S)', 'Healing Touch (A)':'Şifalı Dokunuş (A)', 'Healing Touch (B)':'Şifalı Dokunuş (B)',
+    'Engineer (S)':'Turbo İnşaatçı (S)', 'Engineer (A)':'Turbo İnşaatçı (A)', 'Engineer (B)':'Turbo İnşaatçı (B)',
+    'Turbo Builder':'Turbo İnşaatçı',
   },
   de: {
-    // Combat – Attack
-    'Warlike':'Kriegerisch', 'Belligerent':'Streitlustig', 'Combative':'Kampflustig', 'Hostile':'Feindselig',
-    // Combat – Crit Damage
-    'Heartless':'Herzlos', 'Ruthless':'Gnadenlos', 'Brutal':'Brutal', 'Mean':'Gemein',
-    // Combat – Crit Rate
-    'Blessed':'Gesegnet', 'Fortunate':'Glücklich', 'Favored':'Bevorzugt', 'Lucky':'Glückspilz',
-    // Combat – Accuracy
-    'Deadeye':'Scharfauge', 'Sharpshooter':'Scharfschütze', 'Crack Shot':'Meisterschütze', 'Gunner':'Schütze',
-    // Combat – HP
-    'Vigorous':'Kraftvoll', 'Robust':'Robust', 'Energetic':'Energetisch', 'Durable':'Ausdauernd',
-    // Combat – Defense
-    'Unshakeable':'Unerschütterlich', 'Steadfast':'Standhaft', 'Resolute':'Entschlossen', 'Rooted':'Verwurzelt',
-    // Combat – Crit Defense
+    // ── Combat: Attack ───────────────────────────────────────────────
+    'Warlike':'Kriegerseele', 'Belligerent':'Angriffslustig', 'Combative':'Kämpferisch', 'Hostile':'Feindselig',
+    // ── Combat: Crit Damage ──────────────────────────────────────────
+    'Heartless':'Herzlos', 'Ruthless':'Skrupellos', 'Brutal':'Brutal', 'Mean':'Gemein',
+    // ── Combat: Crit Rate ────────────────────────────────────────────
+    'Blessed':'Gesegnet', 'Fortunate':'Glückspilz', 'Favored':'Fortuna-Freund', 'Lucky':'Chancen-Champ',
+    // ── Combat: Accuracy ─────────────────────────────────────────────
+    'Deadeye':'Meisterschütze', 'Sharpshooter':'Scharfschütze', 'Crack Shot':'Schießtalent', 'Gunner':'Waffenkenner',
+    // ── Combat: HP ───────────────────────────────────────────────────
+    'Vigorous':'Überlebenskämpfer', 'Robust':'Robust', 'Energetic':'Vital', 'Durable':'Zäh',
+    // ── Combat: Defense ──────────────────────────────────────────────
+    'Unshakeable':'Unerschütterlich', 'Steadfast':'Standhaft', 'Resolute':'Resolut', 'Rooted':'Aufrecht',
+    // ── Combat: Crit Defense ─────────────────────────────────────────
     'Diamond Skull':'Diamantschädel', 'Steel Skull':'Stahlschädel',
     'Iron Skull':'Eisenschädel', 'Stone Skull':'Steinschädel',
-    // Combat – Tenacity
-    'Iron Will':'Eiserner Wille', 'Unyielding':'Unnachgiebig', 'Hardy':'Zäh', 'Stubborn':'Stur',
-    // Combat – Evasion
-    'Shadow':'Schatten', 'Elusive':'Schwer Fassbar', 'Slippery':'Glitschig', 'Nimble':'Wendig',
-    // Combat – Stun Resist
-    'Serene':'Gelassen', 'Clear-Headed':'Klardenkend', 'Steady':'Beständig', 'Calm':'Ruhig',
-    // Worker – Job Efficiency
+    // ── Combat: Tenacity ─────────────────────────────────────────────
+    'Iron Will':'Eiserner Wille', 'Unyielding':'Unbeugsam', 'Hardy':'Kühn', 'Stubborn':'Hartnäckig',
+    // ── Combat: Evasion ──────────────────────────────────────────────
+    'Shadow':'Schatten', 'Elusive':'Aalglatt', 'Slippery':'Schlüpfrig', 'Nimble':'Flink',
+    // ── Combat: Stun Resist ──────────────────────────────────────────
+    'Serene':'Gelassen', 'Clear-Headed':'Nüchtern', 'Steady':'Gefasst', 'Calm':'Ruhig',
+    // ── Combat: Negative ─────────────────────────────────────────────
+    'Embattled':'Anfällig', 'Faberge Jaw':'Fabergé-Kiefer', 'Softie':'Weichherzig',
+    'Spineless':'Rückgratlos', 'Jinxed':'Verflucht', 'Fumbling':'Tollpatsch', 'Myopic':'Halbblind',
+    // ── Worker: Move Speed ───────────────────────────────────────────
+    'Lightspeed':'Lichtgeschwindigkeit', 'Supersonic':'Schallgeschwindigkeit', 'Fleet-Footed':'Raschfüßig', 'Speedy':'Schnell',
+    // ── Worker: Charging ─────────────────────────────────────────────
+    'Electric Frenzy':'Elektro-Ekstase',
+    'Lightning Affinity':'Blitz-Affinität', 'Light Affinity':'Blitz-Affinität',
+    'E-Conductor':'E-Leiter', 'Battery Pack':'Akkupack',
+    // ── Worker: Smelting ─────────────────────────────────────────────
+    'Metal Maestro':'Metallmeister', 'Forge Fanatic':'Tiegel-Tüftler',
+    'Bellow Fellow':'Balgen-Bläser', 'Anvil Adept':'Amboss-Adept',
+    // ── Worker: Sawing ───────────────────────────────────────────────
+    'Timber Tycoon':'Holzmagnat', 'Wood Whiz':'Balken-Baron',
+    'Saw Savant':'Super-Säger', 'Workshopper':'Workshopper',
+    // ── Worker: Negative ─────────────────────────────────────────────
+    'Energy Saver':'Stromsparer', 'Sluggard':'Lahme Ente',
+    'Soot Allergy':'Ruß-Repuls', 'Sawdust Allergy':'Arber-Allergiker',
+    // ── Worker: Job Efficiency ───────────────────────────────────────
     'Workaholic':'Arbeitstier', 'Industrious':'Fleißig', 'Diligent':'Eifrig', 'Efficient':'Effizient',
-    // Worker – Move Speed
-    'Lightspeed':'Lichtgeschwindigkeit', 'Supersonic':'Überschall', 'Fleet-Footed':'Schnellfüßig', 'Speedy':'Flink',
-    // Worker – Charging
-    'Electric Frenzy':'Elektrischer Rausch', 'Light Affinity':'Lichtaffinität',
-    'Battery Pack':'Akkupack', 'E-Conductor':'Elektroleiter',
-    // Worker – Smelting
-    'Metal Maestro':'Metallmeister', 'Forge Fanatic':'Schmiedefanatiker',
-    'Bellow Fellow':'Blasebalgbruder', 'Anvil Adept':'Ambossexperte',
-    // Worker – Sawing
-    'Timber Tycoon':'Holzmagnat', 'Wood Whiz':'Holzgenie',
-    'Saw Savant':'Sägeexperte', 'Workshopper':'Werkstattmeister',
-    // Worker – suffixed
-    'Prodigy (S)':'Wunderkind (S)', 'Prodigy (A)':'Wunderkind (A)', 'Prodigy (B)':'Wunderkind (B)',
-    'Engineer (S)':'Ingenieur (S)', 'Engineer (A)':'Ingenieur (A)', 'Engineer (B)':'Ingenieur (B)',
-    'Coach (S)':'Trainer (S)', 'Coach (A)':'Trainer (A)', 'Coach (B)':'Trainer (B)',
-    'Healing Touch (S)':'Heilende Berührung (S)', 'Healing Touch (A)':'Heilende Berührung (A)', 'Healing Touch (B)':'Heilende Berührung (B)',
+    // ── Worker: Other ────────────────────────────────────────────────
+    'Generous':'Großzügig',
+    // ── Worker: tiered ───────────────────────────────────────────────
     'Alchemist (S)':'Alchemist (S)', 'Alchemist (A)':'Alchemist (A)', 'Alchemist (B)':'Alchemist (B)',
-    'Dreamium Hunter (S)':'Dreamiumjäger (S)', 'Dreamium Hunter (A)':'Dreamiumjäger (A)', 'Dreamium Hunter (B)':'Dreamiumjäger (B)',
-    'Caffinated (S)':'Koffeinisiert (S)', 'Caffinated (A)':'Koffeinisiert (A)', 'Caffinated (B)':'Koffeinisiert (B)',
-    'Light Eater (S)':'Leichtesser (S)', 'Light Eater (A)':'Leichtesser (A)', 'Light Eater (B)':'Leichtesser (B)',
-    'Temperate (S)':'Mäßig (S)', 'Temperate (A)':'Mäßig (A)', 'Temperate (B)':'Mäßig (B)',
+    'Dreamium Hunter (S)':'Traumium-Jäger (S)', 'Dreamium Hunter (A)':'Traumium-Jäger (A)', 'Dreamium Hunter (B)':'Traumium-Jäger (B)',
+    'Caffinated (S)':'Kaffeiniert (S)', 'Caffinated (A)':'Kaffeiniert (A)', 'Caffinated (B)':'Kaffeiniert (B)',
+    'Light Eater (S)':'Leichte Kost (S)', 'Light Eater (A)':'Leichte Kost (A)', 'Light Eater (B)':'Leichte Kost (B)',
+    'Temperate (S)':'Gemäßigt (S)', 'Temperate (A)':'Gemäßigt (A)', 'Temperate (B)':'Gemäßigt (B)',
     'Sweet Dreams (S)':'Süße Träume (S)', 'Sweet Dreams (A)':'Süße Träume (A)', 'Sweet Dreams (B)':'Süße Träume (B)',
     'Comfy (S)':'Gemütlich (S)', 'Comfy (A)':'Gemütlich (A)', 'Comfy (B)':'Gemütlich (B)',
-    'Generous':'Großzügig',
+    'Prodigy (S)':'Wunderkind (S)', 'Prodigy (A)':'Wunderkind (A)', 'Prodigy (B)':'Wunderkind (B)',
+    'Coach (S)':'Coach (S)', 'Coach (A)':'Coach (A)', 'Coach (B)':'Coach (B)',
+    'Healing Touch (S)':'Heilende Berührung (S)', 'Healing Touch (A)':'Heilende Berührung (A)', 'Healing Touch (B)':'Heilende Berührung (B)',
+    'Engineer (S)':'Turbo-Bauer (S)', 'Engineer (A)':'Turbo-Bauer (A)', 'Engineer (B)':'Turbo-Bauer (B)',
+    'Turbo Builder':'Turbo-Bauer',
   }
 };
 
