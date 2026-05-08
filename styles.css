@@ -107,10 +107,10 @@ header {
 .role-badge.combat { background: rgba(255,112,112,.15); color: var(--combat); border: 1px solid rgba(255,112,112,.25); }
 .role-badge.worker { background: rgba(79,255,170,.1); color: var(--worker); border: 1px solid rgba(79,255,170,.2); }
 
-.card-owner { font-size: 14px; color: var(--text2); font-weight: 700; margin-bottom: 0; }
-.traits { display: flex; flex-wrap: wrap; gap: 4px; margin-top: 8px; }
+.card-owner { font-size: 16px; color: var(--text2); font-weight: 700; margin-bottom: 0; }
+.traits { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 8px; }
 .t {
-  font-size: 10px; font-weight: 800; padding: 2px 7px; border-radius: 4px;
+  font-size: 12px; font-weight: 800; padding: 2px 7px; border-radius: 4px;
   text-transform: uppercase; letter-spacing: .3px;
 }
 
@@ -120,15 +120,16 @@ header {
   100% { background-position: -200% center; }
 }
 .t-sp {
-  background: linear-gradient(90deg,
-    rgba(255,185,0,.25) 0%, rgba(255,225,80,.5) 25%,
-    rgba(255,255,190,.75) 45%, rgba(255,225,80,.5) 65%,
-    rgba(255,185,0,.25) 100%);
+ background: linear-gradient(45deg, 
+rgb(255, 213, 103) 0%, 
+rgb(255, 225, 80) 25%, 
+rgb(255, 255, 190) 45%, 
+rgb(255, 225, 80) 65%, 
+rgb(255, 213, 103) 100%);
   background-size: 200% auto;
-  animation: sp-shine 5.6s linear infinite;
-  color: #7a5c00;
+  animation: sp-shine 2.6s linear infinite;
+  color: #000;
   border: 1px solid rgba(255,215,50,.45);
-  text-shadow: 0 1px 0 rgba(255,255,200,.6);
 }
 /* S - gold */
 .t-s { background: rgba(255,209,102,.14); color: #ffd166; border: 1px solid rgba(255,209,102,.28); }
@@ -142,7 +143,7 @@ header {
 /* ROLE BUTTONS */
 .role-btn {
   font-family: 'Figtree', sans-serif; font-weight: 800; font-size: 13px;
-  padding: 9px 22px; border-radius: 50px; border: 2px solid var(--border);
+  padding: 10px 16px 12px 16px; border-radius: 50px; border: 2px solid var(--border);
   cursor: pointer; text-transform: uppercase; letter-spacing: .6px;
   transition: all .2s; white-space: nowrap; background: var(--card); color: var(--text2);
 }
@@ -163,6 +164,7 @@ header {
   padding: 9px 16px; border-radius: 50px; border: 2px solid var(--border);
   background: var(--card); color: var(--text2); cursor: pointer;
   display: flex; align-items: center; gap: 7px; transition: all .2s; white-space: nowrap;
+  text-transform: uppercase;
 }
 .trait-dd-btn:hover { border-color: var(--accent); color: var(--text); }
 .trait-dd-btn.active {
