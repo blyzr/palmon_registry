@@ -1,7 +1,7 @@
 // =====================================================
 // CONFIG
 // =====================================================
-const WORKER_URL = 'https://bunnies.blayzereid.workers.dev';
+const WORKER_URL = 'https://divine-waterfall-a278.blayzereid.workers.dev';
 const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbzs1wvqbQuuVF0jnL25zNrAjOmYbeHUnoL-bI7UcN1AoP0w77Np3m7rN7aNJvVPxcpH/exec';
 
 // =====================================================
