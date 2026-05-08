@@ -8,9 +8,42 @@ const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbzs1wvqbQuuVF0jnL25z
 // I18N — UI STRINGS
 // =====================================================
 const STRINGS = {
-  en: { combat:'Combat', workers:'Workers', roleCombat:'⚔️ Combat', roleWorker:'⛏️ Worker'   },
-  tr: { combat:'Savaş',  workers:'İşçiler',  roleCombat:'⚔️ Savaş',  roleWorker:'⛏️ İşçi'    },
-  de: { combat:'Kampf',  workers:'Arbeiter', roleCombat:'⚔️ Kampf',  roleWorker:'⛏️ Arbeiter' }
+  en: {
+    combat:'Combat', workers:'Workers', roleCombat:'⚔️ Combat', roleWorker:'⛏️ Worker',
+    modalTitle:'Add Palmon', username:'Username',
+    usernamePlaceholder:'Your username (required)',
+    uploadTitle:'Upload screenshots',
+    uploadHint:'Tap or drag – multiple files supported – AI will read name and traits automatically',
+    cancel:'Cancel', submitAll:'Submit All',
+    reading:'Reading...', scanning:'Scanning with AI...',
+    scanned:'Scanned – review below', scanFailed:'Scan failed', fillManually:'fill in manually',
+    labelName:'Name', labelRole:'Role', labelTraits:'Traits',
+    autoOverride:'auto · override:', noneOption:'— none —', namePlaceholder:'Palmon name',
+  },
+  tr: {
+    combat:'Savaş', workers:'İşçiler', roleCombat:'⚔️ Savaş', roleWorker:'⛏️ İşçi',
+    modalTitle:'Palmon Ekle', username:'Kullanıcı Adı',
+    usernamePlaceholder:'Kullanıcı adınız (zorunlu)',
+    uploadTitle:'Ekran görüntüsü yükle',
+    uploadHint:'Dokunun veya sürükleyin – AI adı ve özellikleri otomatik okur',
+    cancel:'İptal', submitAll:'Tümünü Gönder',
+    reading:'Okunuyor...', scanning:'AI ile taranıyor...',
+    scanned:'Tarandı – aşağıyı inceleyin', scanFailed:'Tarama başarısız', fillManually:'manuel doldurun',
+    labelName:'Ad', labelRole:'Rol', labelTraits:'Özellikler',
+    autoOverride:'otomatik · değiştir:', noneOption:'— yok —', namePlaceholder:'Palmon adı',
+  },
+  de: {
+    combat:'Kampf', workers:'Arbeiter', roleCombat:'⚔️ Kampf', roleWorker:'⛏️ Arbeiter',
+    modalTitle:'Palmon Hinzufügen', username:'Benutzername',
+    usernamePlaceholder:'Dein Benutzername (erforderlich)',
+    uploadTitle:'Screenshots hochladen',
+    uploadHint:'Antippen oder ziehen – KI liest Name und Merkmale automatisch',
+    cancel:'Abbrechen', submitAll:'Alle Einreichen',
+    reading:'Wird gelesen...', scanning:'KI scannt...',
+    scanned:'Gescannt – unten prüfen', scanFailed:'Scan fehlgeschlagen', fillManually:'manuell ausfüllen',
+    labelName:'Name', labelRole:'Rolle', labelTraits:'Merkmale',
+    autoOverride:'auto · überschreiben:', noneOption:'— keine —', namePlaceholder:'Palmon-Name',
+  }
 };
 const COUNTRY_LANG = {
   TR:'tr', DE:'de', AT:'de', CH:'de', LI:'de',
@@ -27,6 +60,10 @@ function applyStrings() {
     const val = t(el.dataset.str);
     if (val) el.textContent = val;
   });
+  document.querySelectorAll('[data-placeholder]').forEach(el => {
+    const val = t(el.dataset.placeholder);
+    if (val) el.placeholder = val;
+  });
 }
 
 function setLang(lang) {
@@ -35,6 +72,7 @@ function setLang(lang) {
   localStorage.setItem('adhd-lang', lang);
   applyStrings();
   if (allPalmons.length) applyFilters();
+  if (queue.length) renderQueue();
 }
 
 async function detectLanguage() {
@@ -558,17 +596,17 @@ function renderQueue() {
 
   container.innerHTML = queue.map(item => {
     const statusHtml = {
-      reading:  `<span class="spinner"></span> Reading...`,
-      scanning: `<span class="spinner"></span> Scanning with AI...`,
-      done:     `<span style="color:var(--green)">✓</span> Scanned – review below`,
-      error:    `<span style="color:var(--red)">✕</span> Scan failed: ${item.error || 'unknown'} – fill in manually`,
+      reading:  `<span class="spinner"></span> ${t('reading')}`,
+      scanning: `<span class="spinner"></span> ${t('scanning')}`,
+      done:     `<span style="color:var(--green)">✓</span> ${t('scanned')}`,
+      error:    `<span style="color:var(--red)">✕</span> ${t('scanFailed')}: ${item.error || 'unknown'} – ${t('fillManually')}`,
     }[item.status] || '';
 
     const isEditable    = item.status === 'done' || item.status === 'error';
     const traitSelects  = [0,1,2,3].map(i => `
       <select class="trait-sel" ${!isEditable ? 'disabled' : ''} onchange="updateField('${item.id}','trait${i}',this.value)">
         ${['', ...ALL_TRAIT_NAMES].map(n =>
-          `<option value="${n}" ${(item.traits[i] || '') === n ? 'selected' : ''}>${n || '— none —'}</option>`
+          `<option value="${n}" ${(item.traits[i] || '') === n ? 'selected' : ''}>${n ? tName(n) : t('noneOption')}</option>`
         ).join('')}
       </select>`).join('');
 
@@ -580,25 +618,25 @@ function renderQueue() {
           ${isEditable ? `
           <div class="qi-fields">
             <div class="qi-row">
-              <span class="qi-label">Name</span>
-              <input class="qi-input" value="${item.name}" placeholder="Palmon name"
+              <span class="qi-label">${t('labelName')}</span>
+              <input class="qi-input" value="${item.name}" placeholder="${t('namePlaceholder')}"
                 onchange="updateField('${item.id}','name',this.value)">
             </div>
             <div class="qi-row">
-              <span class="qi-label">Role</span>
+              <span class="qi-label">${t('labelRole')}</span>
               <div style="display:flex;align-items:center;gap:7px;flex-wrap:wrap">
                 <span class="role-badge ${item.role === 'Worker' ? 'worker' : 'combat'}" style="font-size:11px;padding:3px 10px">
-                  ${item.role === 'Worker' ? '⛏️ Worker' : '⚔️ Combat'}
+                  ${item.role === 'Worker' ? t('roleWorker') : t('roleCombat')}
                 </span>
-                <span style="font-size:10px;color:var(--text3)">auto · override:</span>
+                <span style="font-size:10px;color:var(--text3)">${t('autoOverride')}</span>
                 <select class="qi-select" style="width:auto;font-size:11px;padding:3px 7px" onchange="updateField('${item.id}','role',this.value)">
-                  <option value="Combat" ${item.role === 'Combat' ? 'selected' : ''}>⚔️ Combat</option>
-                  <option value="Worker" ${item.role === 'Worker' ? 'selected' : ''}>⛏️ Worker</option>
+                  <option value="Combat" ${item.role === 'Combat' ? 'selected' : ''}>${t('roleCombat')}</option>
+                  <option value="Worker" ${item.role === 'Worker' ? 'selected' : ''}>${t('roleWorker')}</option>
                 </select>
               </div>
             </div>
             <div class="qi-row" style="align-items:flex-start">
-              <span class="qi-label" style="margin-top:6px">Traits</span>
+              <span class="qi-label" style="margin-top:6px">${t('labelTraits')}</span>
               <div class="trait-grid" style="flex:1">${traitSelects}</div>
             </div>
           </div>` : ''}

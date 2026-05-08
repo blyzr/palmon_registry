@@ -77,13 +77,14 @@
 <!-- ADD MODAL -->
 <div class="overlay" id="modal">
   <div class="modal">
-    <div class="modal-head">🐰 Add Palmon</div>
+    <div class="modal-head">🐰 <span data-str="modalTitle">Add Palmon</span></div>
     <div class="modal-body">
 
       <!-- SHARED USERNAME -->
       <div class="qi-row" style="margin-bottom:14px;gap:8px;align-items:center">
-        <span class="qi-label" style="width:64px;flex-shrink:0">Username</span>
+        <span class="qi-label" style="width:64px;flex-shrink:0" data-str="username">Username</span>
         <input class="qi-input" id="batch-owner" placeholder="Your username (required)"
+          data-placeholder="usernamePlaceholder"
           oninput="checkSubmitReady()" style="font-size:13px;padding:7px 11px">
       </div>
 
@@ -95,8 +96,8 @@
         onclick="document.getElementById('file-input').click()">
         <input type="file" id="file-input" accept="image/*" multiple onchange="handleFiles(this.files)">
         <div class="dz-icon">📷</div>
-        <div class="dz-text">Upload screenshots</div>
-        <div class="dz-hint">Tap or drag – multiple files supported – AI will read name and traits automatically</div>
+        <div class="dz-text" data-str="uploadTitle">Upload screenshots</div>
+        <div class="dz-hint" data-str="uploadHint">Tap or drag – multiple files supported – AI will read name and traits automatically</div>
       </div>
 
       <div class="queue" id="queue"></div>
@@ -104,8 +105,8 @@
     </div>
     <div class="modal-foot">
       <div class="submit-msg" id="submit-msg"></div>
-      <button class="btn btn-ghost" onclick="closeModal()">Cancel</button>
-      <button class="btn btn-primary" id="submit-btn" onclick="submitAll()" disabled>Submit All</button>
+      <button class="btn btn-ghost" onclick="closeModal()" data-str="cancel">Cancel</button>
+      <button class="btn btn-primary" id="submit-btn" onclick="submitAll()" disabled data-str="submitAll">Submit All</button>
     </div>
   </div>
 </div>
