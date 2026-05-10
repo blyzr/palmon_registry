@@ -71,22 +71,29 @@ Turbo-Bauer→Turbo Builder, Großzügig→Generous`;
         },
         body: JSON.stringify({
           model: 'claude-haiku-4-5',
-          max_tokens: 300,
+          max_tokens: 2000,
           system: `You extract data from Palmon Survival game screenshots. The screenshot may be in any language.
-Return ONLY valid JSON, no markdown: {"name":"string","traits":["trait1","trait2","trait3","trait4"]}
+
+Two screenshot types are supported:
+1. DETAIL view — a single Palmon with its name shown at the top and trait badges in the upper-left.
+2. LIST view — a roster/inventory screen with multiple rows. Each row shows a Palmon thumbnail and 1–4 trait pills. Names are usually NOT shown next to each row in this view.
+
+Return ONLY valid JSON, no markdown, in this exact shape:
+{"palmons":[{"name":"string","traits":["trait1","trait2","trait3","trait4"]}, ...]}
 
 Rules:
-- name: the Palmon name shown at the top, keep as written
+- For a DETAIL view, return a single entry in the palmons array.
+- For a LIST view, return one entry per visible row, in top-to-bottom order. If no name is visible for a row, set name to "".
+- name: the Palmon name as written; if not visible, "".
 - traits: map what you see to the closest English name from this list: ${traitNames.join(', ')}
-- Use the translation tables below if the screenshot is not in English — these are exact mappings verified in-game
-- The trait badges are coloured pills in the upper-left of the screen only — ignore all other text
-- Return up to 4 traits maximum, only ones visible on screen
-- If no traits match, return []
+- Use the translation tables below if the screenshot is not in English — these are exact mappings verified in-game.
+- Trait badges are coloured pills; ignore all other text (resource counters, buttons, filters like SR/SSR/UR, headers).
+- Return up to 4 traits per Palmon, only ones visible on screen. If no traits match for a row, use [].
 
 ${traitLookup}`,
           messages: [{ role: 'user', content: [
             { type: 'image', source: { type: 'base64', media_type: mime, data: base64 } },
-            { type: 'text', text: 'Extract the Palmon name and traits from this screenshot. Read only the coloured badge labels on the LEFT side of the screen. Use the translation tables in the system prompt to map them to English.' }
+            { type: 'text', text: 'Extract every Palmon visible in this screenshot. If it is a list/roster view, return one entry per row (top-to-bottom). If it is a single-Palmon detail view, return one entry. Read only the coloured trait pills. Use the translation tables in the system prompt to map them to English. Return JSON in the {"palmons":[...]} shape.' }
           ]}]
         })
       });
@@ -99,11 +106,26 @@ ${traitLookup}`,
       const end   = raw.lastIndexOf('}');
       if (start === -1) return respond({ error: 'No JSON in response', raw });
 
+      let parsed;
       try {
-        return respond(JSON.parse(raw.substring(start, end + 1)));
+        parsed = JSON.parse(raw.substring(start, end + 1));
       } catch (e) {
         return respond({ error: 'Parse failed', raw });
       }
+
+      const palmons = Array.isArray(parsed.palmons)
+        ? parsed.palmons
+        : (parsed.name !== undefined || parsed.traits !== undefined)
+          ? [{ name: parsed.name || '', traits: Array.isArray(parsed.traits) ? parsed.traits : [] }]
+          : [];
+
+      const normalized = palmons.map(p => ({
+        name: typeof p?.name === 'string' ? p.name : '',
+        traits: Array.isArray(p?.traits) ? p.traits.filter(t => typeof t === 'string').slice(0, 4) : []
+      }));
+
+      const first = normalized[0] || { name: '', traits: [] };
+      return respond({ name: first.name, traits: first.traits, palmons: normalized });
 
     } catch (e) {
       return respond({ error: e.message });
