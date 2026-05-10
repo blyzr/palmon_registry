@@ -74,26 +74,25 @@ Turbo-Bauer→Turbo Builder, Großzügig→Generous`;
           max_tokens: 2000,
           system: `You extract data from Palmon Survival game screenshots. The screenshot may be in any language.
 
-Two screenshot types are supported:
-1. DETAIL view — a single Palmon with its name shown at the top and trait badges in the upper-left.
-2. LIST view — a roster/inventory screen with multiple rows. Each row shows a Palmon thumbnail and 1–4 trait pills. Names are usually NOT shown next to each row in this view.
+HOW TO IDENTIFY THE SCREENSHOT TYPE:
+- DETAIL view: full-screen view of ONE Palmon. The creature's proper name appears prominently at the top (e.g. "Flufftail", "Ironback"). Trait badges are in the upper-left area. → Return 1 entry.
+- LIST view: a scrollable roster/deposit/drop screen. It has a SCREEN TITLE at the very top (e.g. "Palmon Bırak", "Drop Palmon", "Einsetzen", "Deposit") — this is NOT a Palmon name. Below the title are multiple rows, each with a small Palmon thumbnail on the left and 1–4 coloured trait pills to its right. No individual Palmon names appear on these rows. → Return one entry PER ROW.
 
 Return ONLY valid JSON, no markdown, in this exact shape:
 {"palmons":[{"name":"string","traits":["trait1","trait2","trait3","trait4"]}, ...]}
 
 Rules:
-- For a DETAIL view, return a single entry in the palmons array.
-- For a LIST view, return one entry per visible row, in top-to-bottom order. If no name is visible for a row, set name to "".
-- name: the Palmon name as written; if not visible, "".
-- traits: map what you see to the closest English name from this list: ${traitNames.join(', ')}
-- Use the translation tables below if the screenshot is not in English — these are exact mappings verified in-game.
-- Trait badges are coloured pills; ignore all other text (resource counters, buttons, filters like SR/SSR/UR, headers).
-- Return up to 4 traits per Palmon, only ones visible on screen. If no traits match for a row, use [].
+- DETAIL view → 1 entry: name = the creature's proper name from the top of the screen.
+- LIST view → N entries (one per row, top-to-bottom): name = "" for every entry (no names visible on rows). NEVER use the screen title as a name.
+- traits: read only the coloured pill badges next to each row's thumbnail. Map each to the closest English trait from this list: ${traitNames.join(', ')}
+- Use the translation tables below — these are exact in-game mappings.
+- Ignore everything else: screen titles, level numbers, gold counters, filter buttons (SR/SSR/UR), checkboxes, footer buttons.
+- Return up to 4 traits per entry. If a row has no readable traits, return [].
 
 ${traitLookup}`,
           messages: [{ role: 'user', content: [
             { type: 'image', source: { type: 'base64', media_type: mime, data: base64 } },
-            { type: 'text', text: 'Extract every Palmon visible in this screenshot. If it is a list/roster view, return one entry per row (top-to-bottom). If it is a single-Palmon detail view, return one entry. Read only the coloured trait pills. Use the translation tables in the system prompt to map them to English. Return JSON in the {"palmons":[...]} shape.' }
+            { type: 'text', text: 'Look at this screenshot. If it is a LIST/roster view (screen title at top, multiple rows each with a small thumbnail + trait pills), return one JSON entry per row with name="" and the traits from that row\'s pills. If it is a DETAIL view (one large Palmon filling the screen with its name at the top), return one entry with the creature name and its traits. Use the translation tables to map non-English traits to English. Return {"palmons":[...]} only.' }
           ]}]
         })
       });

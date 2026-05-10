@@ -585,9 +585,11 @@ async function scanOne(item) {
       return { name: p.name || '', traits, role: inferRole(traits) };
     };
 
+    const owner = (document.getElementById('batch-owner')?.value || '').trim();
+
     if (palmons.length <= 1) {
       const n = normalize(palmons[0] || { name: '', traits: [] });
-      item.name   = n.name;
+      item.name   = n.name || owner;
       item.traits = n.traits;
       item.role   = n.role;
       item.status = 'done';
@@ -600,7 +602,7 @@ async function scanOne(item) {
           file:    item.file,
           dataUrl: item.dataUrl,
           status:  'done',
-          name:    n.name,
+          name:    n.name || owner,
           role:    n.role,
           traits:  n.traits,
         };
