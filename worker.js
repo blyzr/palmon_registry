@@ -71,22 +71,28 @@ Turbo-Bauer→Turbo Builder, Großzügig→Generous`;
         },
         body: JSON.stringify({
           model: 'claude-haiku-4-5',
-          max_tokens: 300,
+          max_tokens: 2000,
           system: `You extract data from Palmon Survival game screenshots. The screenshot may be in any language.
-Return ONLY valid JSON, no markdown: {"name":"string","traits":["trait1","trait2","trait3","trait4"]}
+
+HOW TO IDENTIFY THE SCREENSHOT TYPE:
+- DETAIL view: full-screen view of ONE Palmon. The creature's proper name appears prominently at the top (e.g. "Flufftail", "Ironback"). Trait badges are in the upper-left area. → Return 1 entry.
+- LIST view: a scrollable roster/deposit/drop screen. It has a SCREEN TITLE at the very top (e.g. "Palmon Bırak", "Drop Palmon", "Einsetzen", "Deposit") — this is NOT a Palmon name. Below the title are multiple rows, each with a small Palmon thumbnail on the left and 1–4 coloured trait pills to its right. No individual Palmon names appear on these rows. → Return one entry PER ROW.
+
+Return ONLY valid JSON, no markdown, in this exact shape:
+{"palmons":[{"name":"string","traits":["trait1","trait2","trait3","trait4"]}, ...]}
 
 Rules:
-- name: the Palmon name shown at the top, keep as written
-- traits: map what you see to the closest English name from this list: ${traitNames.join(', ')}
-- Use the translation tables below if the screenshot is not in English — these are exact mappings verified in-game
-- The trait badges are coloured pills in the upper-left of the screen only — ignore all other text
-- Return up to 4 traits maximum, only ones visible on screen
-- If no traits match, return []
+- DETAIL view → 1 entry: name = the creature's proper name from the top of the screen.
+- LIST view → N entries (one per row, top-to-bottom): name = "" for every entry (no names visible on rows). NEVER use the screen title as a name.
+- traits: read only the coloured pill badges next to each row's thumbnail. Map each to the closest English trait from this list: ${traitNames.join(', ')}
+- Use the translation tables below — these are exact in-game mappings.
+- Ignore everything else: screen titles, level numbers, gold counters, filter buttons (SR/SSR/UR), checkboxes, footer buttons.
+- Return up to 4 traits per entry. If a row has no readable traits, return [].
 
 ${traitLookup}`,
           messages: [{ role: 'user', content: [
             { type: 'image', source: { type: 'base64', media_type: mime, data: base64 } },
-            { type: 'text', text: 'Extract the Palmon name and traits from this screenshot. Read only the coloured badge labels on the LEFT side of the screen. Use the translation tables in the system prompt to map them to English.' }
+            { type: 'text', text: 'Look at this screenshot. If it is a LIST/roster view (screen title at top, multiple rows each with a small thumbnail + trait pills), return one JSON entry per row with name="" and the traits from that row\'s pills. If it is a DETAIL view (one large Palmon filling the screen with its name at the top), return one entry with the creature name and its traits. Use the translation tables to map non-English traits to English. Return {"palmons":[...]} only.' }
           ]}]
         })
       });
@@ -99,11 +105,26 @@ ${traitLookup}`,
       const end   = raw.lastIndexOf('}');
       if (start === -1) return respond({ error: 'No JSON in response', raw });
 
+      let parsed;
       try {
-        return respond(JSON.parse(raw.substring(start, end + 1)));
+        parsed = JSON.parse(raw.substring(start, end + 1));
       } catch (e) {
         return respond({ error: 'Parse failed', raw });
       }
+
+      const palmons = Array.isArray(parsed.palmons)
+        ? parsed.palmons
+        : (parsed.name !== undefined || parsed.traits !== undefined)
+          ? [{ name: parsed.name || '', traits: Array.isArray(parsed.traits) ? parsed.traits : [] }]
+          : [];
+
+      const normalized = palmons.map(p => ({
+        name: typeof p?.name === 'string' ? p.name : '',
+        traits: Array.isArray(p?.traits) ? p.traits.filter(t => typeof t === 'string').slice(0, 4) : []
+      }));
+
+      const first = normalized[0] || { name: '', traits: [] };
+      return respond({ name: first.name, traits: first.traits, palmons: normalized });
 
     } catch (e) {
       return respond({ error: e.message });

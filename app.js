@@ -572,13 +572,43 @@ async function scanOne(item) {
     });
     const data = await res.json();
     if (data.error) throw new Error(data.error);
-    item.name   = data.name || '';
-    const matched = (data.traits || [])
-      .map(t => ALL_TRAIT_NAMES.find(n => n.toLowerCase() === t.toLowerCase()) || t)
-      .slice(0, 4);
-    item.traits = [...matched, '', '', '', ''].slice(0, 4);
-    item.role   = inferRole(item.traits);
-    item.status = 'done';
+
+    const palmons = Array.isArray(data.palmons) && data.palmons.length
+      ? data.palmons
+      : [{ name: data.name || '', traits: data.traits || [] }];
+
+    const normalize = p => {
+      const matched = (p.traits || [])
+        .map(t => ALL_TRAIT_NAMES.find(n => n.toLowerCase() === String(t).toLowerCase()) || t)
+        .slice(0, 4);
+      const traits = [...matched, '', '', '', ''].slice(0, 4);
+      return { name: p.name || '', traits, role: inferRole(traits) };
+    };
+
+    const owner = (document.getElementById('batch-owner')?.value || '').trim();
+
+    if (palmons.length <= 1) {
+      const n = normalize(palmons[0] || { name: '', traits: [] });
+      item.name   = n.name || owner;
+      item.traits = n.traits;
+      item.role   = n.role;
+      item.status = 'done';
+    } else {
+      const idx = queue.indexOf(item);
+      const expanded = palmons.map((p, i) => {
+        const n = normalize(p);
+        return {
+          id:      `${item.id}-${i}`,
+          file:    item.file,
+          dataUrl: item.dataUrl,
+          status:  'done',
+          name:    n.name || owner,
+          role:    n.role,
+          traits:  n.traits,
+        };
+      });
+      if (idx >= 0) queue.splice(idx, 1, ...expanded);
+    }
   } catch (e) {
     item.status = 'error';
     item.error  = e.message;
